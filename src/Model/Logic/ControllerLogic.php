@@ -37,7 +37,7 @@ use function ucfirst;
  * EntityLogic
  * @Bean()
  */
-class ServiceLogic
+class ControllerLogic
 {
     /**
      * @Inject()
@@ -74,10 +74,10 @@ class ServiceLogic
             return;
         }
 
-        $basePath = "@app/Logic/Service";
+        $basePath = "@app/Http/Controller";
         foreach ($tableSchemas as $tableSchema) {
             $this->readyGenerateId = false;
-            $this->generateDao($tableSchema, $pool, $basePath.'/'.$path, $isConfirm, $fieldPrefix, $tplDir, '', $path, $modules);
+            $this->generateDao($tableSchema, $pool, $basePath.'/'.$modules.'/'.$path, $isConfirm, $fieldPrefix, $tplDir, '', $path, $modules);
         }
     }
 
@@ -93,12 +93,12 @@ class ServiceLogic
         string $modules
     ): void {
         $file   = alias($path);
-        $tplDir = alias($tplDir.'/service');
+        $tplDir = alias($tplDir.'/controller');
 
         $mappingClass = $tableSchema['mapping'];
         $tplName = (empty($modules)) ? '' : '-'.$modules;
         $config       = [
-            'tplFilename' => 'service'.lcfirst($tplName),
+            'tplFilename' => 'controller'.lcfirst($tplName),
             'tplDir'      => $tplDir,
             'className'   => $mappingClass,
         ];
@@ -112,7 +112,7 @@ class ServiceLogic
                 throw new RuntimeException(sprintf('Directory "%s" was not created', $file));
             }
         }
-        $file .= sprintf('/%s%s%sService.php', $modules, $mappingClass, $extName);
+        $file .= sprintf('/%s%sController.php', $mappingClass, $extName);
 
         $columnSchemas = $this->schemaData->getSchemaColumnsData($pool, $tableSchema['name'], $fieldPrefix);
 
@@ -120,14 +120,11 @@ class ServiceLogic
         $useNamespace = sprintf($request, $modules, $mPath, $modules, $mappingClass, 'Create').PHP_EOL;
         $useNamespace .= sprintf($request, $modules, $mPath, $modules, $mappingClass, 'Update').PHP_EOL;
         $useNamespace .= sprintf($request, $modules, $mPath, $modules, $mappingClass, 'PaginateQuery').PHP_EOL;
-        $useNamespace .= sprintf('use App\Logic\Dto\Response\%s\%s\%s%s%sResponse;', $modules, $mPath, $modules, $mappingClass, "Info").PHP_EOL;
-        $useNamespace .= sprintf('use App\Logic\Dto\Response\%s\%s\%s%s%sResponse;', $modules, $mPath, $modules, $mappingClass, "List").PHP_EOL;
-        $useNamespace .= sprintf('use App\Model\Entity\%s\%s;', $mPath, $mappingClass).PHP_EOL;
-        $useNamespace .= sprintf('use App\Model\Dao\%s\%sDao;', $mPath, $mappingClass).PHP_EOL;
+        $useNamespace .= sprintf('use App\Logic\Service\%s\%sService;', $mPath, $modules.$mappingClass).PHP_EOL;
 
         $data = [
             'tableName'    => $tableSchema['name'],
-            'entityName'   => $modules.$mappingClass.$extName.'Service',
+            'entityName'   => $mappingClass.$extName.'Controller',
             'dao'          => $mappingClass.$extName.'Dao',
             'namespace'    => $this->getNameSpace($path),
             'tableComment' => $tableSchema['comment'],
@@ -137,6 +134,7 @@ class ServiceLogic
             'mappingClassLC' => lcfirst($mappingClass),
             'api'          => 'Api',
             'seller'       => 'Seller',
+            'code'       => '{code}',
         ];
         $gen  = new FileGenerator($config);
 

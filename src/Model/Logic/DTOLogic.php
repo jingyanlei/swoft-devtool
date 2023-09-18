@@ -118,6 +118,8 @@ class DTOLogic
             'className'   => $mappingClass,
         ];
 
+        var_dump($tplDir.'/'.$config['tplFilename']);
+
         if (!is_dir($file)) {
             if (!$isConfirm && !ConsoleHelper::confirm("mkdir path $file, Ensure continue?", true)) {
                 output()->writeln(' Quit, Bye!');
