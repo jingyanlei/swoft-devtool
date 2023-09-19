@@ -70,7 +70,7 @@ class DaoLogic
 
         $tableSchemas = $this->schemaData->getSchemaTableData($pool, $table, $exclude, $tablePrefix, $removePrefix);
         if (empty($tableSchemas)) {
-            output()->colored('Generate entity match table is empty!', 'error');
+            output()->colored('Generate dao match table is empty!', 'error');
             return;
         }
 
@@ -166,13 +166,13 @@ class DaoLogic
 
         $fileExists = file_exists($file);
 
-        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate entity $file, Ensure continue?", true)) {
+        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate dao $file, Ensure continue?", true)) {
             output()->writeln(' Quit, Bye!');
             return;
         }
         if ($fileExists && !$isConfirm
             && !ConsoleHelper::confirm(
-                " entity $file already exists, Ensure continue?",
+                " dao $file already exists, Ensure continue?",
                 false
             )
         ) {
@@ -182,11 +182,11 @@ class DaoLogic
 
         var_dump($file);
         if ($gen->renderas($file, $data)) {
-            output()->colored(" Generate entity $file OK!", 'success');
+            output()->colored(" Generate dao $file OK!", 'success');
             return;
         }
 
-        output()->colored(" Generate entity $file Fail!", 'error');
+        output()->colored(" Generate dao $file Fail!", 'error');
     }
 
     /**

@@ -70,7 +70,7 @@ class DTOLogic
 
         $tableSchemas = $this->schemaData->getSchemaTableData($pool, $table, $exclude, $tablePrefix, $removePrefix);
         if (empty($tableSchemas)) {
-            output()->colored('Generate entity match table is empty!', 'error');
+            output()->colored('Generate dto match table is empty!', 'error');
             return;
         }
 
@@ -118,8 +118,6 @@ class DTOLogic
             'className'   => $mappingClass,
         ];
 
-        var_dump($tplDir.'/'.$config['tplFilename']);
-
         if (!is_dir($file)) {
             if (!$isConfirm && !ConsoleHelper::confirm("mkdir path $file, Ensure continue?", true)) {
                 output()->writeln(' Quit, Bye!');
@@ -136,9 +134,34 @@ class DTOLogic
         $genSetters    = [];
         $genGetters    = [];
         $genProperties = [];
+        $exclusion = [
+        ];
+        if (lcfirst($modules) == lcfirst('Api')) {
+            if ($extName == 'Create') {
+                $exclusion[] = 'id';
+                $exclusion[] = 'code';
+                $exclusion[] = 'created_at';
+                $exclusion[] = 'updated_at';
+                $exclusion[] = 'is_delete';
+                $exclusion[] = 'deleted_at';
+            }
+            if ($extName == 'Update') {
+                $exclusion[] = 'id';
+                $exclusion[] = 'created_at';
+                $exclusion[] = 'updated_at';
+            }
+            if ($extName == 'Info' || $extName == 'List') {
+                $exclusion[] = 'is_delete';
+                $exclusion[] = 'deleted_at';
+            }
+        }
         foreach ($columnSchemas as $columnSchema) {
+            if (!empty($exclusion)) {
+                if (in_array($columnSchema['name'], $exclusion)) {
+                    continue;
+                }
+            }
             $genProperties[] = $this->generateProperties($columnSchema, $tplDir);
-
             $genSetters[] = $this->generateSetters($columnSchema, $tplDir);
             $genGetters[] = $this->generateGetters($columnSchema, $tplDir);
         }
@@ -161,13 +184,13 @@ class DTOLogic
 
         $fileExists = file_exists($file);
 
-        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate entity $file, Ensure continue?", true)) {
+        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate dto $file, Ensure continue?", true)) {
             output()->writeln(' Quit, Bye!');
             return;
         }
         if ($fileExists && !$isConfirm
             && !ConsoleHelper::confirm(
-                " entity $file already exists, Ensure continue?",
+                " dto $file already exists, Ensure continue?",
                 false
             )
         ) {
@@ -175,13 +198,12 @@ class DTOLogic
             return;
         }
 
-        var_dump($file);
         if ($gen->renderas($file, $data)) {
-            output()->colored(" Generate entity $file OK!", 'success');
+            output()->colored(" Generate dto $file OK!", 'success');
             return;
         }
 
-        output()->colored(" Generate entity $file Fail!", 'error');
+        output()->colored(" Generate dto $file Fail!", 'error');
     }
 
     /**
@@ -240,12 +262,12 @@ class DTOLogic
         $columnDetail = array_filter([$columnName, $prop, $hidden]);
         $data         = [
             'type'         => $colSchema['phpType'],
-            'propertyName' => sprintf('$%s', $mappingName),
+//            'propertyName' => sprintf('$%s', $mappingName),
+            'propertyName' => sprintf('$%s', $fieldName),
             'columnDetail' => $columnDetail ? implode(', ', $columnDetail) : '',
             'id'           => $id,
             'comment'      => trim($colSchema['columnComment']),
         ];
-
         $gen          = new FileGenerator($entityConfig);
         $propertyCode = $gen->render($data);
 
@@ -270,7 +292,8 @@ class DTOLogic
             'type'       => '?' . $colSchema['originPHPType'],
             'returnType' => $colSchema['phpType'],
             'methodName' => $getterName,
-            'property'   => $colSchema['mappingName'],
+//            'property'   => $colSchema['mappingName'],
+            'property'   => $colSchema['name'],
         ];
         $gen        = new FileGenerator($config);
 
@@ -299,7 +322,8 @@ class DTOLogic
             'paramType'  => $colSchema['phpType'],
             'methodName' => $setterName,
             'paramName'  => sprintf('$%s', $colSchema['mappingName']),
-            'property'   => $colSchema['mappingName'],
+//            'property'   => $colSchema['mappingName'],
+            'property'   => $colSchema['name'],
         ];
         $gen  = new FileGenerator($config);
 
@@ -368,13 +392,13 @@ class DTOLogic
 
         $fileExists = file_exists($file);
 
-        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate entity $file, Ensure continue?", true)) {
+        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate dto $file, Ensure continue?", true)) {
             output()->writeln(' Quit, Bye!');
             return;
         }
         if ($fileExists && !$isConfirm
             && !ConsoleHelper::confirm(
-                " entity $file already exists, Ensure continue?",
+                " dto $file already exists, Ensure continue?",
                 false
             )
         ) {
@@ -382,13 +406,12 @@ class DTOLogic
             return;
         }
 
-        var_dump($file);
         if ($gen->renderas($file, $data)) {
-            output()->colored(" Generate entity $file OK!", 'success');
+            output()->colored(" Generate dto $file OK!", 'success');
             return;
         }
 
-        output()->colored(" Generate entity $file Fail!", 'error');
+        output()->colored(" Generate dto $file Fail!", 'error');
     }
 
     private function generateRequest(
@@ -427,14 +450,21 @@ class DTOLogic
         $genSetters    = [];
         $genGetters    = [];
         $genProperties = [];
-        $exclusion = [
-            'id',
-            'created_at',
-            'updated_at',
-            'is_delete'
-        ];
+        $exclusion = [];
+        if ($extName == 'Create') {
+            $exclusion[] = 'created_at';
+            $exclusion[] = 'updated_at';
+            $exclusion[] = 'id';
+            $exclusion[] = 'code';
+            $exclusion[] = 'is_delete';
+            $exclusion[] = 'deleted_at';
+        }
+        if ($extName == 'Update') {
+            $exclusion[] = 'created_at';
+            $exclusion[] = 'updated_at';
+        }
         foreach ($columnSchemas as $columnSchema) {
-            if ($extName == 'Create') {
+            if (!empty($exclusion)) {
                 if (in_array($columnSchema['name'], $exclusion)) {
                     continue;
                 }
@@ -462,13 +492,13 @@ class DTOLogic
 
         $fileExists = file_exists($file);
 
-        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate entity $file, Ensure continue?", true)) {
+        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate dto $file, Ensure continue?", true)) {
             output()->writeln(' Quit, Bye!');
             return;
         }
         if ($fileExists && !$isConfirm
             && !ConsoleHelper::confirm(
-                " entity $file already exists, Ensure continue?",
+                " dto $file already exists, Ensure continue?",
                 false
             )
         ) {
@@ -476,12 +506,11 @@ class DTOLogic
             return;
         }
 
-        var_dump($file);
         if ($gen->renderas($file, $data)) {
-            output()->colored(" Generate entity $file OK!", 'success');
+            output()->colored(" Generate dto $file OK!", 'success');
             return;
         }
 
-        output()->colored(" Generate entity $file Fail!", 'error');
+        output()->colored(" Generate dto $file Fail!", 'error');
     }
 }

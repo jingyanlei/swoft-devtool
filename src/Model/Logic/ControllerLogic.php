@@ -70,7 +70,7 @@ class ControllerLogic
 
         $tableSchemas = $this->schemaData->getSchemaTableData($pool, $table, $exclude, $tablePrefix, $removePrefix);
         if (empty($tableSchemas)) {
-            output()->colored('Generate entity match table is empty!', 'error');
+            output()->colored('Generate controller match table is empty!', 'error');
             return;
         }
 
@@ -134,19 +134,21 @@ class ControllerLogic
             'mappingClassLC' => lcfirst($mappingClass),
             'api'          => 'Api',
             'seller'       => 'Seller',
-            'code'       => '{code}',
+            'code'         => '{code}',
+            'modules'      => lcfirst($modules),
+            'mPath'      => lcfirst($mPath),
         ];
         $gen  = new FileGenerator($config);
 
         $fileExists = file_exists($file);
 
-        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate entity $file, Ensure continue?", true)) {
+        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate controller $file, Ensure continue?", true)) {
             output()->writeln(' Quit, Bye!');
             return;
         }
         if ($fileExists && !$isConfirm
             && !ConsoleHelper::confirm(
-                " entity $file already exists, Ensure continue?",
+                " controller $file already exists, Ensure continue?",
                 false
             )
         ) {
@@ -155,11 +157,11 @@ class ControllerLogic
         }
 
         if ($gen->renderas($file, $data)) {
-            output()->colored(" Generate entity $file OK!", 'success');
+            output()->colored(" Generate controller $file OK!", 'success');
             return;
         }
 
-        output()->colored(" Generate entity $file Fail!", 'error');
+        output()->colored(" Generate controller $file Fail!", 'error');
     }
 
     /**

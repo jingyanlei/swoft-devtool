@@ -85,7 +85,6 @@ class GenCommand
         $tplDir       = input()->getOpt('td', '@devtool/devtool/resource/template');
         $removePrefix = input()->getOpt('remove_prefix', input()->getOpt('rp'));
         $modules      = input()->getOpt('modules', input()->getOpt('m'), 'Seller');
-
         try {
             $this->logic->create([
                 (string)$table,

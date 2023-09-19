@@ -70,7 +70,7 @@ class ServiceLogic
 
         $tableSchemas = $this->schemaData->getSchemaTableData($pool, $table, $exclude, $tablePrefix, $removePrefix);
         if (empty($tableSchemas)) {
-            output()->colored('Generate entity match table is empty!', 'error');
+            output()->colored('Generate service match table is empty!', 'error');
             return;
         }
 
@@ -142,13 +142,13 @@ class ServiceLogic
 
         $fileExists = file_exists($file);
 
-        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate entity $file, Ensure continue?", true)) {
+        if (!$fileExists && !$isConfirm && !ConsoleHelper::confirm("generate service $file, Ensure continue?", true)) {
             output()->writeln(' Quit, Bye!');
             return;
         }
         if ($fileExists && !$isConfirm
             && !ConsoleHelper::confirm(
-                " entity $file already exists, Ensure continue?",
+                " service $file already exists, Ensure continue?",
                 false
             )
         ) {
@@ -157,11 +157,11 @@ class ServiceLogic
         }
 
         if ($gen->renderas($file, $data)) {
-            output()->colored(" Generate entity $file OK!", 'success');
+            output()->colored(" Generate service $file OK!", 'success');
             return;
         }
 
-        output()->colored(" Generate entity $file Fail!", 'error');
+        output()->colored(" Generate service $file Fail!", 'error');
     }
 
     /**
