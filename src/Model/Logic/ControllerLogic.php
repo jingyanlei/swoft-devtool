@@ -136,7 +136,7 @@ class ControllerLogic
             'seller'       => 'Seller',
             'code'         => '{code}',
             'modules'      => lcfirst($modules),
-            'mPath'      => lcfirst($mPath),
+            'mPath'      => $this->uncamelize(lcfirst($mPath)),
         ];
         $gen  = new FileGenerator($config);
 
@@ -230,5 +230,15 @@ class ControllerLogic
         $propertyCode = $gen->render($data);
 
         return (string)$propertyCode;
+    }
+
+    /**
+     * 驼峰命名转下划线命名
+     * 思路:
+     * 小写和大写紧挨一起的地方,加上分隔符,然后全部转小写
+     */
+    public function uncamelize($camelCaps,$separator='_')
+    {
+        return strtolower(preg_replace('/([a-z])([A-Z])/', "$1" . $separator . "$2", $camelCaps));
     }
 }
