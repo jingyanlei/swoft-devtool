@@ -129,7 +129,7 @@ class ControllerLogic
             'namespace'    => $this->getNameSpace($path),
             'tableComment' => $tableSchema['comment'],
             'dbPool'       => $pool === Pool::DEFAULT_POOL ? '' : ', pool="' . $pool . '"',
-            'useNamespace' => $useNamespace,
+            'useNamespace' => $this->getNameSpace($useNamespace),
             'mappingClass' => $mappingClass,
             'mappingClassLC' => lcfirst($mappingClass),
             'api'          => 'Api',

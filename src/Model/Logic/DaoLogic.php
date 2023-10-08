@@ -157,7 +157,7 @@ class DaoLogic
             'namespace'    => $this->getNameSpace($path),
             'tableComment' => $tableSchema['comment'],
             'dbPool'       => $pool === Pool::DEFAULT_POOL ? '' : ', pool="' . $pool . '"',
-            'use'          => $use,
+            'use'          => $this->getNameSpace($use),
             'mappingClass' => $mappingClass,
             'api'          => 'Api',
             'seller'       => 'Seller',
